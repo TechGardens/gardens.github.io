@@ -56,10 +56,13 @@ _styles: >
 
 ## Introduction 
 
+During my recent study of machine learning concepts in book by C. Bishop <d-cite key="bishop2006pattern"></d-cite>, I came across the concept of conditional expectation.This sparked a realization: why not leverage this method for handling missing data in datasets? Thus, this article came to fruition.
 
 Handling missing values is a common challenge in real-world datasets, where empty cells can disrupt analysis. These “missing values” need to be addressed before we can effectively use the data. To bridge these gaps, we often turn to strategies like using the mean or median of a feature, or simply removing the incomplete records. Using the mean or median is a straightforward solution, especially when features are uncorrelated. By calculating the global mean of a specific feature and filling in the missing values, we can quickly patch the dataset. However, this method might compromise the data’s integrity.
 
 For this reason, another method for determining missing values is needed. In this article, we will explore and test conditional expectation as an alternative approach. Conditional expectation takes into account the relationships between features, providing a potentially more accurate and context-aware way to handle missing data. By leveraging the dependencies among variables, we aim to fill in the gaps more effectively and preserve the integrity of the dataset.
+
+Before we dive in, it's important to note that while I'm excited to share my discoveries, I want to acknowledge that there may already exist prior scientific research on this topic. This article stands as my independent investigation, aiming to validate and demonstrate the effectiveness of conditional expectation through practical experimentation.
 
 ### Why data's integrity suffers? - short example
 
@@ -203,5 +206,6 @@ These results demonstrate the effectiveness of incorporating conditional expecta
 ## Conclusions
 
 
+The article highlights the importance of addressing missing values in datasets and the potential drawbacks of using simplistic methods like mean value replacement. In response, it introduces conditional expectation as a more sophisticated approach, leveraging the context provided by correlated variables to fill in missing data. Through empirical testing, it demonstrates that conditional expectation can effectively reduce guessing errors compared to mean value replacement, thereby enhancing the integrity of the dataset.
 
-In the article, it was shown that using mean value for missing value replacement can compromise data's integrity. Therefore, it might be needed to use different approach like conditional expectation. Conditional expectation is a method which uses context (values of correlated variables) to fill the blank spaces in a dataset. It was shown that conditional expectation can reduce missing value guessing error. If you would like dive deeper into the idea you can explore the code in Python notebook on repository  <d-cite key="repo"></d-cite>.
+For those interested in delving deeper into this concept, the Python notebook available in the repository <d-cite key="repo"></d-cite> provides a comprehensive exploration of the methodology and its implementation. By embracing methods like conditional expectation, analysts can better preserve the integrity of their data and extract more accurate insights from complex datasets.

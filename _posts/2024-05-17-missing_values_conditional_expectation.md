@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: distill
 title: Conditional expectation method for missing values replacement
 description: Context-based missing value estimation
 tags: machine-learning data-preparation missing-values
@@ -57,10 +57,11 @@ _styles: >
 ## Introduction 
 
 
-Handling missing values is a common challenge in real-world datasets, where empty cells can disrupt analysis. These "missing values" need to be addressed before we can effectively use the data. To bridge these gaps, we often turn to strategies like using the mean or median of a feature, or simply removing the incomplete records. 
-Using the mean or median is a straightforward solution, especially when features are uncorrelated. By calculating the global mean of a specific feature and filling in the missing values, we can quickly patch the dataset. However, this method might compromise the data's integrity.
+Handling missing values is a common challenge in real-world datasets, where empty cells can disrupt analysis. These “missing values” need to be addressed before we can effectively use the data. To bridge these gaps, we often turn to strategies like using the mean or median of a feature, or simply removing the incomplete records. Using the mean or median is a straightforward solution, especially when features are uncorrelated. By calculating the global mean of a specific feature and filling in the missing values, we can quickly patch the dataset. However, this method might compromise the data’s integrity.
 
-## Short example
+For this reason, another method for determining missing values is needed. In this article, we will explore and test conditional expectation as an alternative approach. Conditional expectation takes into account the relationships between features, providing a potentially more accurate and context-aware way to handle missing data. By leveraging the dependencies among variables, we aim to fill in the gaps more effectively and preserve the integrity of the dataset.
+
+### Why data's integrity suffers? - short example
 
 Let's delve into a practical example: obesity classification. Imagine our dataset includes height, weight, and an obesity label. Now, suppose some weight entries are missing. We want to retain these records, so we need to estimate the missing weights. If we choose to fill in these gaps with the average weight—say, 70 kg—we might end up with distorted data. Table [1](#tab1) illustrates this with three artificial records where the weight is replaced by the mean value of 70 kg. The obesity column shows the true labels, while the model prediction column displays the predictions from a well-trained model. 
 
@@ -85,11 +86,12 @@ An intuitive observation is that weight and height are correlated. Therefore, it
 
 In this article, we will attempt to solve this problem using the conditional expectation method. By leveraging the relationship between height and weight, we aim to more accurately estimate the missing weight values and preserve the integrity of our dataset. 
 
-Although there's no code here, you can check out the behind-the-scenes work in the notebook on repository <d-cite key="techgardensconditionalexpectationrepo"></d-cite>.
+Although there's no code here, you can check out the behind-the-scenes work in the notebook on repository <d-cite key="repo"></d-cite>.
 
 
-## Dataset
+## Data characteristics
 
+### Information about dataset 
 For our testing, we'll use The Complete Pokemon Dataset  <d-cite key="completepokedataset"></d-cite>, focusing on the height and weight features. We'll simulate missing data by assuming some weight values are lost, creating gaps in the dataset. First, we'll fill these gaps using the mean values as a baseline method. Then, we'll use conditional expectation for a more sophisticated approach. Finally, we'll compare the errors from each method to see which one performs better.
 
 <table
@@ -104,15 +106,33 @@ For our testing, we'll use The Complete Pokemon Dataset  <d-cite key="completepo
   </thead>
 </table>
 
+### Relationship between weight and height visualised
+
+The relationship between weight and height is visualized in the images below. The scatter plot on the left shows the original data, while the plot on the right represents the data fitted into a Multivariate Normal Distribution. These plots indicate that **the weight and height features are correlated**.  Later, we'll leverage this correlation to estimate missing weight values based on the known heights using the conditional expectation method.
+
+<div class="row mt-3">
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid loading="eager" path="assets/2024-05-17-missing_values_conditional_expectation/scatter_plot.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+    <div class="col-sm mt-3 mt-md-0">
+        {% include figure.liquid loading="eager" path="assets/2024-05-17-missing_values_conditional_expectation/distribution_plot.png" class="img-fluid rounded z-depth-1" %}
+    </div>
+</div>
+<div class="caption">
+    Data scatter and distribution plots.
+</div>
+
+
 ## Baseline method - mean value replacement
 
-Firstly, we will calculate mean value of weight and then replace each of the missing records with this value.
-Mean value of weigth is 38.25 kg. The table with replaced records is shown below.
+First, we calculated the mean value of weight and used it to replace each missing record. The mean weight is 38.25 kg. The table with the replaced records is shown below. These calculations were performed behind the scenes using the Python notebook <d-cite key="repo"></d-cite>.
 
+The errors for this method, also computed in the notebook, are as follows:
 
-Errors for this method are:
-Mean value method - RMSE: 35.60
-Mean value method - Maximum absolute difference: 148.75
+- Mean Value Method - RMSE: 35.60
+- Mean Value Method - Maximum Absolute Difference: 148.75
+
+These metrics will serve as a baseline to compare with the more sophisticated conditional expectation approach.
 
 
 <table
@@ -129,23 +149,31 @@ Mean value method - Maximum absolute difference: 148.75
 
 ## Conditional expectation with interactive plot
 
-We know that height and weight features are correlated. Thus, we can use information about the height to better guess the weight missing value. We will use conditional expectation method. How we can calculate conditional expectation of weight knowing the value of height?
+### Motivation and quick math
 
-Assuming there are two random variables $$X$$ (weight) and $$Y$$ (height) and height value is already known $$Y=y$$ we can calculate conditional probability as a weighted sum of X values and their conditional probability <d-cite key="tabogaconditionalexpectation"></d-cite>, <d-cite key="bishop2006pattern"></d-cite>.
+Given the correlation between height and weight, we can use the known height to better estimate the missing weight values. This can be achieved using the conditional expectation method. But how do we calculate the conditional expectation of weight given the height?
+
+Assume we have two random variables, $$X$$ (weight) and $$Y$$ (height), and the height value is already known. We can calculate the conditional probability as a weighted sum of $$X$$ values and their conditional probabilities $$p(X | Y)$$. Mathematically, this can be expressed as <d-cite key="tabogaconditionalexpectation"></d-cite>, <d-cite key="bishop2006pattern"></d-cite>:
 
 $$
 E[X|Y = y] = \sum_{x}p(x|y)\cdot x
 $$
 
-The plot below shows how expected value of weight changes with respect to given height. You can see weight conditional probability as a red slice on a 3d plot and 2d plot on the right. When height rises, weight also rises. You can play with the plot using a slider.
+This equation tells us that the expected value of weight, given a specific height, is a sum of all possible weights weighted by their conditional probabilities given the height. This approach leverages the relationship between the variables to provide a more accurate estimation than simple mean replacement.
+
+### Conditional probability - interactive plot
+
+The plot below illustrates how the expected value of weight changes concerning a given height. The red slice on the 3D plot and the 2D plot on the right show the weight's conditional probability. As the height increases, the weight also tends to increase. You can interact with the plot using a slider to see these changes dynamically.
+
+This method aims to provide a more nuanced and accurate way of handling missing data by utilizing the inherent relationships within the dataset.
 
 <div class="l-page">
   <iframe src="{{ '/assets/2024-05-17-missing_values_conditional_expectation/interact_marginal_dist.html' | relative_url }}" frameborder='0' scrolling='no' height="600px" width="100%" style="border: 1px dashed grey;"></iframe>
 </div>
 
-## Replacing missing values with conditional expecatation
+## Replacing missing values with conditional expectation
 
-Now, when we calculated conditional expectation of weight, we can replace blank spots in a dataset with these values. The table belows shows only the records that were missing data. You can explore this table and see that weight values has been set proportionaly to height.
+Now that we've calculated the conditional expectation of weight based on height, we can replace the missing values in the dataset with these estimated values. The table below displays only the records that were initially missing data. As you explore this table, you'll notice that the weight values have been set proportionally to the height, reflecting the relationship we observed between these features.
 
 <table
   data-height="460"
@@ -161,7 +189,7 @@ Now, when we calculated conditional expectation of weight, we can replace blank 
 
 ## Errors
 
-Now when we guessed weight values, we can calculate errors between our guess and ground truth. I've calculated these values behind the scenes in jupyter notebook. These errors are shown in table below. As you can see we obtained lower guessing errors. These errors could be further reduced by introducing other features like obesity label into our conditional expectation analysis.
+After estimating the weight values using both the mean and conditional expectation methods, we can now calculate the errors between our guesses and the ground truth. These errors have been computed in a Python notebook <d-cite key="repo"></d-cite> and are presented in the table below. As shown, the guessing errors are lower when using the conditional expectation method compared to the mean value approach. This improvement suggests that leveraging the relationship between height and weight through conditional expectation leads to more accurate estimations.
 
 <a id="tab1">Table 1.</a> Guessing errors for mean and conditional expectation methods
 
@@ -169,3 +197,11 @@ Now when we guessed weight values, we can calculate errors between our guess and
 |---|---|---| --- |
 | Mean value | 35.60 kg  | 148.75 kg  |
 | Conditional expectation | **27.61** kg  | **95.81** kg | 
+
+These results demonstrate the effectiveness of incorporating conditional expectation analysis into handling missing data. Additionally, further improvements could be achieved by integrating additional features, such as obesity labels, into our analysis.
+
+## Conclusions
+
+
+
+In the article, it was shown that using mean value for missing value replacement can compromise data's integrity. Therefore, it might be needed to use different approach like conditional expectation. Conditional expectation is a method which uses context (values of correlated variables) to fill the blank spaces in a dataset. It was shown that conditional expectation can reduce missing value guessing error. If you would like dive deeper into the idea you can explore the code in Python notebook on repository  <d-cite key="repo"></d-cite>.

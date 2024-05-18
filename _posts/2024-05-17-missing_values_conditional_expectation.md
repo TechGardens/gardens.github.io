@@ -156,7 +156,7 @@ These metrics will serve as a baseline to compare with the more sophisticated co
 
 Given the correlation between height and weight, we can use the known height to better estimate the missing weight values. This can be achieved using the conditional expectation method. But how do we calculate the conditional expectation of weight given the height?
 
-Assume we have two random variables, $$X$$ (weight) and $$Y$$ (height), and the height value is already known. We can calculate the conditional probability as a weighted sum of $$X$$ values and their conditional probabilities $$p(X | Y)$$. Mathematically, this can be expressed as <d-cite key="tabogaconditionalexpectation"></d-cite>, <d-cite key="bishop2006pattern"></d-cite>:
+Assume we have two random variables, $$X$$ (weight) and $$Y$$ (height), and the height value is already known $$Y=y$$. We can calculate the conditional probability as a weighted sum of $$X$$ values and their conditional probabilities $$p(X | Y)$$. Mathematically, this can be expressed as <d-cite key="tabogaconditionalexpectation"></d-cite>, <d-cite key="bishop2006pattern"></d-cite>:
 
 $$
 E[X|Y = y] = \sum_{x}p(x|y)\cdot x

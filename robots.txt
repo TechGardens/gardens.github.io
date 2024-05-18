@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://github.com/mlgardens/gardens.github.io/sitemap.xml

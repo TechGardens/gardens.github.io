@@ -1,7 +1,7 @@
 ---
 layout: default
-permalink: /blog/
-title: blog
+permalink: /machine-learning-garden/
+title: machine_learning
 nav: true
 nav_order: 1
 pagination:

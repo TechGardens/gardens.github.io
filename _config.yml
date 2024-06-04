@@ -265,7 +265,7 @@ sass:
 # -----------------------------------------------------------------------------
 
 jekyll-minifier:
-  exclude: ["robots.txt"]
+  exclude: ["robots.txt", "assets/js/harmonic_circle_project/index.js"]
   uglifier_args:
     harmony: true
 

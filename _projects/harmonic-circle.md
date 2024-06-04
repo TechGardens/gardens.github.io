@@ -2,7 +2,7 @@
 layout: none
 title: Harmonic circle
 description: for harmonic ear training
-img: assets/img/12.jpg
+img: assets/img/harmonic-circle/harmonic-circle.png
 importance: 1
 category: work
 related_publications: true

@@ -35,3 +35,13 @@ related_publications: true
 ```
 
 ### If site uses any assets you should update path from index.js into domain/assets/
+
+## Troubleshoot
+
+If deployment fails it might be due to uglifier. Add below clausule to specific secion in _config.yml:
+```
+jekyll-minifier:
+  exclude: ["robots.txt", "path_to_your_js_file"]
+  uglifier_args:
+    harmony: true
+```
